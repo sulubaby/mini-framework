@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>todos · mini-framework</title>
+
+    <!-- Runs BEFORE the page is drawn, so there is no flash of the wrong colours.
+         It picks the theme the user chose last time, or else the computer's
+         own light/dark setting, and writes it on the <html> element. The CSS
+         reads it as data-theme="light" / "dark". -->
+    <script>
+        (function () {
+            var theme = "light";
+            try {
+                theme = localStorage.getItem("mini-framework-theme")
+                    || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            } catch (error) { /* storage blocked: keep light */ }
+            document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
+        })();
+    </script>
+
+    <!-- Two Google fonts for the design. If they can't load (offline), the
+         stylesheet falls back to fonts every computer already has. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./todo/styles.css">
+</head>
+<body>
+    <!-- The page starts empty: the framework draws the whole app in here. -->
+    <div id="app"></div>
+
+    <!-- type="module" lets our JavaScript be split into several files. -->
+    <script type="module" src="./todo/app.js"></script>
+</body>
+</html>
