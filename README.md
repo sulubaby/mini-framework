@@ -261,6 +261,7 @@ h("button", { onclick: () => console.log("clicked!") }, "Click me")
 
 The name after `on` is the browser's event name: `onclick`, `ondblclick`, `onkeydown`, `onkeyup`,
 `oninput`, `onchange`, `onblur`, `onfocus`, `onmouseover`, `onscroll`, …
+Capital letters are fine too: `onClick` works the same as `onclick`.
 
 Your function receives the browser's event object:
 
@@ -411,6 +412,9 @@ createApp({
 
 On every state change the framework runs `view(state)`, compares the result with the previous result
 and changes only the parts of the real page that differ.
+Redraws are **batched**: a state change only books a redraw, which runs as a microtask right after
+your code finishes (still before the browser paints). So a click that calls `setState` three times
+causes one redraw, not three. The very first draw happens immediately, inside `createApp`.
 `afterRender` is for things a description cannot express, such as moving the cursor into a box or
 changing something outside `root` (the TodoMVC uses it to set the light/dark theme on `<html>`).
 
@@ -455,7 +459,7 @@ Everything is exported from `framework/index.js`.
 | Function | Description |
 |---|---|
 | `h(tag, attrs?, ...children)` | Describe an element → `{ tag, attrs, children }`. Children: text, numbers, `h()` results or arrays; `false`/`null`/`undefined` are ignored. |
-| `createApp({ root, store, view, afterRender? })` | Draw `view(state)` into `root` and redraw (diffing) on every state change. |
+| `createApp({ root, store, view, afterRender? })` | Draw `view(state)` into `root` and redraw (diffing, batched into one redraw per burst of changes) on every state change. |
 | `createStore(initialState)` | → `{ getState, setState, subscribe }`. |
 | `createRouter(store)` | Sync `state.route` with the URL hash. Call before `createApp`. |
 | `navigate(path)` | Change the URL hash, e.g. `navigate("/active")`. |

@@ -47,6 +47,23 @@ export function createApp({ root, store, view, afterRender }) {
         }
     }
 
-    store.subscribe(render);
-    render();
+    // Several setState calls in a row (e.g. inside one click) should cause
+    // ONE redraw, not one per call. So a change only books a redraw; it runs
+    // as a microtask: right after the current code finishes, before the
+    // browser paints. Later changes see it is already booked and do nothing.
+    let booked = false;
+
+    function scheduleRender() {
+        if (booked) {
+            return;
+        }
+        booked = true;
+        queueMicrotask(() => {
+            booked = false;
+            render();
+        });
+    }
+
+    store.subscribe(scheduleRender);
+    render();   // the first draw happens right away, so the page exists
 }
